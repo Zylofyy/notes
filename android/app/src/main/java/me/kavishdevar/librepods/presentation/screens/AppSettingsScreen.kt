@@ -18,29 +18,38 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.rounded.BugReport
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.Forum
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Troubleshoot
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import me.kavishdevar.librepods.presentation.components.MaterialButtonStyle
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
@@ -49,51 +58,36 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
-import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import me.kavishdevar.librepods.BuildConfig
 import me.kavishdevar.librepods.R
+import me.kavishdevar.librepods.presentation.components.PremiumBanner
 import me.kavishdevar.librepods.presentation.components.AppInfoCard
 import me.kavishdevar.librepods.presentation.components.DeviceInfoCard
 import me.kavishdevar.librepods.presentation.components.StyledBottomSheet
 import me.kavishdevar.librepods.presentation.components.StyledButton
-import me.kavishdevar.librepods.presentation.components.StyledIconButton
 import me.kavishdevar.librepods.presentation.components.StyledInputField
 import me.kavishdevar.librepods.presentation.components.StyledList
 import me.kavishdevar.librepods.presentation.components.StyledListItem
 import me.kavishdevar.librepods.presentation.components.StyledSlider
 import me.kavishdevar.librepods.presentation.components.StyledToggle
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
-import me.kavishdevar.librepods.presentation.theme.MaterialTypography
 import me.kavishdevar.librepods.presentation.viewmodel.AppSettingsViewModel
 import me.kavishdevar.librepods.utils.XposedState
 import java.util.concurrent.TimeUnit
@@ -111,7 +105,6 @@ fun AppSettingsScreen(
     val scrollState = rememberScrollState()
     val state by viewModel.uiState.collectAsState()
 
-    val backdrop = rememberLayerBackdrop()
 
     val contactBottomSheet = remember { mutableStateOf(false) }
     val subjectState = remember { TextFieldState() }
@@ -119,15 +112,13 @@ fun AppSettingsScreen(
     val subjectFocusRequester = remember { FocusRequester() }
     val descriptionFocusRequester = remember { FocusRequester() }
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 16.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .layerBackdrop(backdrop)
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp)
     ) {
@@ -136,62 +127,47 @@ fun AppSettingsScreen(
         val isDarkTheme = isSystemInDarkTheme()
 
         if (!state.isPremium && state.connectionSuccessful) {
-            StyledButton(
-                onClick = navigateToPurchase,
-                backdrop = rememberLayerBackdrop(),
-                modifier = Modifier.fillMaxWidth(),
-                maxScale = 0.05f,
-                surfaceColor = MaterialTheme.colorScheme.primary
-            ) {
-                Text(
-                    stringResource(R.string.unlock_advanced_features),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+            PremiumBanner(onClick = navigateToPurchase)
             Spacer(modifier = Modifier.height(16.dp))
         }
         if (state.timeUntilFOSSPremiumExpiry > 0L) {
-            Box(
-                modifier = Modifier
-                    .background(Color(0xFF32829B), RoundedCornerShape(28.dp))
-                    .clip(RoundedCornerShape(28.dp))
-                    .clickable {
-                        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = "mailto:".toUri()
-                            putExtra(Intent.EXTRA_EMAIL, arrayOf("billing@kavish.xyz"))
-                            putExtra(Intent.EXTRA_SUBJECT, "LibrePods Play billing error")
-                            putExtra(
-                                Intent.EXTRA_TEXT,
-                                "Please enter your GitHub username to restore your premium access:\n\nGitHub username: "
-                            )
-                        }
-                        context.startActivity(emailIntent)
+            Surface(
+                onClick = {
+                    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = "mailto:".toUri()
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("billing@kavish.xyz"))
+                        putExtra(Intent.EXTRA_SUBJECT, "LibrePods Play billing error")
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            "Please enter your GitHub username to restore your premium access:\n\nGitHub username: "
+                        )
                     }
+                    context.startActivity(emailIntent)
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
             ) {
                 Text(
                     text = stringResource(
                         R.string.play_foss_premium_banner, maxOf(1, TimeUnit.MILLISECONDS.toDays(state.timeUntilFOSSPremiumExpiry).toInt())
                     ),
-                    modifier = Modifier
-                        .padding(16.dp),
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        fontFamily = FontFamily(Font(R.font.sf_pro))
-                    )
+                    modifier = Modifier.padding(20.dp),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         StyledToggle(
             title = stringResource(R.string.appearance),
-            label = stringResource(R.string.use_material3e),
-            checked = state.m3eEnabled,
-            onCheckedChange = viewModel::setm3eEnabled,
-            enabled = state.isPremium
+            label = stringResource(R.string.dynamic_color),
+            description = stringResource(R.string.dynamic_color_description),
+            checked = state.dynamicColor,
+            onCheckedChange = viewModel::setDynamicColor,
+            icon = Icons.Rounded.Palette
         )
+        Spacer(modifier = Modifier.height(16.dp))
 
         if (state.connectionSuccessful) {
             StyledToggle(
@@ -359,7 +335,7 @@ fun AppSettingsScreen(
             ) {
                 Text(
                     text = stringResource(R.string.customizations_unavailable),
-                    style = MaterialTypography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                 )
@@ -389,6 +365,7 @@ fun AppSettingsScreen(
                 StyledListItem(
                     name = stringResource(R.string.troubleshooting),
                     onClick = navigateToTroubleshooting,
+                    icon = Icons.Rounded.Troubleshoot
                 )
             }
         }
@@ -399,10 +376,12 @@ fun AppSettingsScreen(
             StyledListItem(
                 name = stringResource(R.string.email),
                 onClick = { contactBottomSheet.value = true },
+                icon = Icons.Rounded.Email,
             )
 
             StyledListItem(
                 name = stringResource(R.string.discord),
+                icon = Icons.Rounded.Forum,
                 onClick = {
                     val intent =
                         Intent(Intent.ACTION_VIEW, "https://discord.gg/Ts4wupXcmc".toUri())
@@ -412,6 +391,7 @@ fun AppSettingsScreen(
 
             StyledListItem(
                 name = stringResource(R.string.github_issues),
+                icon = Icons.Rounded.BugReport,
                 onClick = {
                     val appVersion =
                         Uri.encode("v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
@@ -446,6 +426,7 @@ fun AppSettingsScreen(
         StyledListItem(
             name = stringResource(R.string.open_source_licenses),
             onClick = navigateToOpenSourceLicenses,
+            icon = Icons.Rounded.Description,
         )
 
         Spacer(modifier = Modifier.height(bottomPadding))
@@ -454,14 +435,12 @@ fun AppSettingsScreen(
             AlertDialog(onDismissRequest = { viewModel.setShowCameraDialog(false) }, title = {
                 Text(
                     stringResource(R.string.set_custom_camera_package),
-                    fontFamily = FontFamily(Font(R.font.sf_pro)),
                     fontWeight = FontWeight.Medium
                 )
             }, text = {
                 Column {
                     Text(
                         stringResource(R.string.enter_custom_camera_package),
-                        fontFamily = FontFamily(Font(R.font.sf_pro)),
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
@@ -476,12 +455,6 @@ fun AppSettingsScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Ascii,
                             capitalization = KeyboardCapitalization.None
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (isDarkTheme) Color(0xFF007AFF) else Color(
-                                0xFF3C6DF5
-                            ),
-                            unfocusedBorderColor = if (isDarkTheme) Color.Gray else Color.LightGray
                         ),
                         supportingText = {
                             if (state.cameraPackageError != null) {
@@ -502,7 +475,6 @@ fun AppSettingsScreen(
                     }) {
                     Text(
                         "Save",
-                        fontFamily = FontFamily(Font(R.font.sf_pro)),
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -511,7 +483,6 @@ fun AppSettingsScreen(
                     onClick = { viewModel.setShowCameraDialog(false) }) {
                     Text(
                         "Cancel",
-                        fontFamily = FontFamily(Font(R.font.sf_pro)),
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -522,92 +493,80 @@ fun AppSettingsScreen(
     StyledBottomSheet(
         visible = contactBottomSheet.value,
         onDismiss = { contactBottomSheet.value = false },
-        backdrop = backdrop
-    ) { innerBackdrop, progress ->
-        val animatedPadding = lerp(16.dp, 2.dp, progress)
-
+    ) {
+        val canSend = subjectState.text.isNotEmpty() && descriptionState.text.isNotEmpty()
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = animatedPadding)
-                .padding(bottom = 16.dp),
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-           Row(
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .padding(bottom = 16.dp),
-               horizontalArrangement = Arrangement.SpaceBetween,
-               verticalAlignment = Alignment.CenterVertically
-           ) {
-               StyledIconButton(
-                   icon = "\uDBC0\uDD84",
-                   backdrop = innerBackdrop,
-                   onClick = { contactBottomSheet.value = false }
-               )
-               Text (
-                   text = stringResource(R.string.describe_your_issue),
-                   style = TextStyle(
-                       fontSize = 18.sp,
-                       fontFamily = FontFamily(Font(R.font.sf_pro)),
-                       fontWeight = FontWeight.Bold,
-                       textAlign = TextAlign.Center,
-                       color = if (isSystemInDarkTheme()) Color.White else Color.Black
-                   )
-               )
-               StyledIconButton(
-                   icon = "\uDBC0\uDE1F",
-                   backdrop = innerBackdrop,
-                   surfaceColor = if (isSystemInDarkTheme()) Color(0xFF0091FF) else Color(0xFF0088FF),
-                   iconTint = if (subjectState.text.isNotEmpty() && descriptionState.text.isNotEmpty()) Color.White else Color.Gray,
-                   enabled = subjectState.text.isNotEmpty() && descriptionState.text.isNotEmpty(),
-                   onClick = {
-                       contactBottomSheet.value = false
-                       val intent = Intent(Intent.ACTION_SENDTO).apply {
-                           data = "mailto:".toUri()
-                           putExtra(Intent.EXTRA_EMAIL, arrayOf("contact@kavish.xyz"))
-                           putExtra(Intent.EXTRA_SUBJECT, "LibrePods: ${subjectState.text}")
-                           putExtra(
-                               Intent.EXTRA_TEXT,
-                               "${descriptionState.text}" +
-                                   "\n\n----------" +
-                                   "\nPhone details:" +
-                                   "\nMANUFACTURER: ${Build.MANUFACTURER}" +
-                                   "\nMODEL: ${Build.MODEL} (${Build.PRODUCT})" +
-                                   "\nDISPLAY_VERSION: ${Build.DISPLAY}" +
-                                   "\nID: ${Build.ID} (SDK ${Build.VERSION.SDK_INT_FULL})" +
-                                   "\nXposed enabled/active: ${XposedState.isAvailable}/${XposedState.bluetoothScopeEnabled}" +
-                                   "\n\nApp details:" +
-                                   "\nVERSION: ${BuildConfig.VERSION_NAME}" +
-                                   "\nVERSION_CODE: ${BuildConfig.VERSION_CODE}" +
-                                   "\nFLAVOR: ${BuildConfig.FLAVOR}" +
-                                   "\nBUILD_TYPE: ${BuildConfig.BUILD_TYPE}"
-                           )
-                       }
-                       context.startActivity(intent)
-                       subjectState.clearText()
-                       descriptionState.clearText()
-                   }
-               )
-           }
-
-           Spacer(modifier = Modifier.height(8.dp))
-
-           StyledInputField(
-               inputState = subjectState,
-               focusRequester = subjectFocusRequester,
-               placeholder = stringResource(R.string.subject),
-               forceApple = true
-           )
-
-           Spacer(modifier = Modifier.height(12.dp))
-
-           StyledInputField(
-               inputState = descriptionState,
-               focusRequester = descriptionFocusRequester,
-               placeholder = stringResource(R.string.describe_your_issue),
-               singleLine = false,
-               forceApple = true
-           )
+            Text(
+                text = stringResource(R.string.describe_your_issue),
+                style = MaterialTheme.typography.headlineSmallEmphasized,
+            )
+            StyledInputField(
+                inputState = subjectState,
+                focusRequester = subjectFocusRequester,
+                label = stringResource(R.string.subject),
+            )
+            StyledInputField(
+                inputState = descriptionState,
+                focusRequester = descriptionFocusRequester,
+                label = stringResource(R.string.describe_your_issue),
+                singleLine = false,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                StyledButton(
+                    onClick = { contactBottomSheet.value = false },
+                    materialButtonStyle = MaterialButtonStyle.Normal
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+                StyledButton(
+                    enabled = canSend,
+                    materialButtonStyle = MaterialButtonStyle.Filled,
+                    onClick = {
+                        contactBottomSheet.value = false
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = "mailto:".toUri()
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf("contact@kavish.xyz"))
+                            putExtra(Intent.EXTRA_SUBJECT, "LibrePods: ${subjectState.text}")
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                "${descriptionState.text}" +
+                                    "\n\n----------" +
+                                    "\nPhone details:" +
+                                    "\nMANUFACTURER: ${Build.MANUFACTURER}" +
+                                    "\nMODEL: ${Build.MODEL} (${Build.PRODUCT})" +
+                                    "\nDISPLAY_VERSION: ${Build.DISPLAY}" +
+                                    "\nID: ${Build.ID} (SDK ${Build.VERSION.SDK_INT_FULL})" +
+                                    "\nXposed enabled/active: ${XposedState.isAvailable}/${XposedState.bluetoothScopeEnabled}" +
+                                    "\n\nApp details:" +
+                                    "\nVERSION: ${BuildConfig.VERSION_NAME}" +
+                                    "\nVERSION_CODE: ${BuildConfig.VERSION_CODE}" +
+                                    "\nFLAVOR: ${BuildConfig.FLAVOR}" +
+                                    "\nBUILD_TYPE: ${BuildConfig.BUILD_TYPE}"
+                            )
+                        }
+                        context.startActivity(intent)
+                        subjectState.clearText()
+                        descriptionState.clearText()
+                    }
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Rounded.Send,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                    )
+                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Text(stringResource(R.string.send))
+                }
+            }
         }
     }
 }

@@ -16,14 +16,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-@file:OptIn(ExperimentalEncodingApi::class)
-
 package me.kavishdevar.librepods.presentation.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.BluetoothConnected
+import androidx.compose.material.icons.rounded.Earbuds
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import me.kavishdevar.librepods.R
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Composable
 fun ConnectionSettings(
@@ -32,18 +32,19 @@ fun ConnectionSettings(
     automaticConnectionEnabled: Boolean,
     onAutomaticConnectionChanged: (Boolean) -> Unit,
 ) {
-    StyledList {
+    StyledList(title = stringResource(R.string.connection)) {
         StyledToggle(
             label = stringResource(R.string.ear_detection),
             checked = automaticEarDetectionEnabled,
-            onCheckedChange = onAutomaticEarDetectionChanged
+            onCheckedChange = onAutomaticEarDetectionChanged,
+            icon = Icons.Rounded.Earbuds
         )
-
         StyledToggle(
             label = stringResource(R.string.automatically_connect),
             description = stringResource(R.string.automatically_connect_description),
             checked = automaticConnectionEnabled,
-            onCheckedChange = onAutomaticConnectionChanged
+            onCheckedChange = onAutomaticConnectionChanged,
+            icon = Icons.Rounded.BluetoothConnected
         )
     }
 }

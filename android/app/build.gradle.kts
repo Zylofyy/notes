@@ -106,6 +106,19 @@ android {
     androidResources {
         generateLocaleConfig = true
     }
+    testOptions {
+        unitTests {
+            // Robolectric screenshot tests need merged resources.
+            isIncludeAndroidResources = true
+            all {
+                // Robolectric on JDK 21 needs access to FileDescriptor internals.
+                it.jvmArgs(
+                    "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+                    "--add-opens=java.base/java.io=ALL-UNNAMED",
+                )
+            }
+        }
+    }
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -138,17 +151,20 @@ dependencies {
     implementation(libs.annotations)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.haze)
-    implementation(libs.haze.materials)
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.billing)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.aboutlibraries)
     implementation(libs.aboutlibraries.compose.m3)
-    implementation(libs.backdrop)
 //    implementation(libs.hilt)
 //    implementation(libs.hilt.compiler)
     compileOnly(libs.libxposed.api)

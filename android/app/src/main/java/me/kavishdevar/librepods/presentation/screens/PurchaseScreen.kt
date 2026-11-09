@@ -18,16 +18,13 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -35,15 +32,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import me.kavishdevar.librepods.R
 import me.kavishdevar.librepods.presentation.components.ListItemOrientation
 import me.kavishdevar.librepods.presentation.components.MaterialButtonStyle
@@ -51,8 +45,6 @@ import me.kavishdevar.librepods.presentation.components.StyledButton
 import me.kavishdevar.librepods.presentation.components.StyledList
 import me.kavishdevar.librepods.presentation.components.StyledListItem
 import me.kavishdevar.librepods.presentation.navigation.Screen
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.PurchaseViewModel
 import me.kavishdevar.librepods.utils.XposedState
 
@@ -66,15 +58,12 @@ fun PurchaseScreen(
 
     val state by viewModel.uiState.collectAsState()
 
-    val backdrop = rememberLayerBackdrop()
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     Column(
         modifier = Modifier
-            .layerBackdrop(backdrop)
             .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 16.dp)
@@ -181,16 +170,12 @@ fun PurchaseScreen(
                 onClick = {
                     viewModel.purchase(context)
                 },
-                backdrop = rememberLayerBackdrop(),
                 modifier = Modifier.fillMaxWidth(),
-                maxScale = 0.05f,
-                surfaceColor = MaterialTheme.colorScheme.primary,
                 materialButtonStyle = MaterialButtonStyle.Filled
             ) {
                 Text(
                     stringResource(R.string.buy_price, state.price),
-                    style = MaterialTheme.typography.bodyMediumEmphasized,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    style = MaterialTheme.typography.labelLargeEmphasized,
                 )
             }
 
@@ -200,10 +185,7 @@ fun PurchaseScreen(
                 onClick = {
                     viewModel.restorePurchases()
                 },
-                backdrop = rememberLayerBackdrop(),
                 modifier = Modifier.fillMaxWidth(),
-                maxScale = 0.05f,
-                isInteractive = false,
                 materialButtonStyle = MaterialButtonStyle.Outlined
             ) {
                 Text(

@@ -1,5 +1,7 @@
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -39,11 +41,9 @@ import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,9 +79,7 @@ import me.kavishdevar.librepods.BuildConfig
 import me.kavishdevar.librepods.R
 import me.kavishdevar.librepods.data.updates.UpdateItem
 import me.kavishdevar.librepods.data.updates.updates
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
 import me.kavishdevar.librepods.presentation.theme.LibrePodsTheme
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,9 +96,8 @@ fun ReleaseNotesScreen(
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
 
-    LibrePodsTheme(m3eEnabled = true) {
+    LibrePodsTheme(dynamicColor = false) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -207,7 +204,6 @@ fun ReleaseNotesScreen(
                                             density = LocalDensity.current.density * 0.8f,
                                             fontScale = LocalDensity.current.fontScale
                                         ),
-                                        LocalDesignSystem provides if (m3eEnabled) DesignSystem.Material else DesignSystem.Apple
                                     ) {
                                         updateItem.demoComposeable()
                                     }
@@ -372,7 +368,7 @@ fun ReleaseNotesScreen(
 @Composable
 fun ReleaseNotesScreenPreview() {
     LibrePodsTheme(
-        m3eEnabled = false
+        dynamicColor = false
     ) {
         ReleaseNotesScreen(
             updates = updates,

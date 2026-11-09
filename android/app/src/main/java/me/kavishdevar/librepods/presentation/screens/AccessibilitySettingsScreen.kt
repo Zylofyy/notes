@@ -19,20 +19,21 @@
 package me.kavishdevar.librepods.presentation.screens
 
 // import me.kavishdevar.librepods.utils.RadareOffsetFinder
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.automirrored.rounded.VolumeDown
+import androidx.compose.material.icons.Icons
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,17 +42,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -60,16 +57,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import me.kavishdevar.librepods.R
+import me.kavishdevar.librepods.presentation.components.PremiumBanner
 import me.kavishdevar.librepods.bluetooth.AACPManager
 import me.kavishdevar.librepods.bluetooth.ATTHandles
 import me.kavishdevar.librepods.data.Capability
-import me.kavishdevar.librepods.presentation.components.StyledButton
 import me.kavishdevar.librepods.presentation.components.StyledList
 import me.kavishdevar.librepods.presentation.components.StyledListItem
 import me.kavishdevar.librepods.presentation.components.StyledSlider
 import me.kavishdevar.librepods.presentation.components.StyledToggle
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.time.Duration.Companion.milliseconds
@@ -77,7 +72,6 @@ import kotlin.time.Duration.Companion.milliseconds
 private var phoneMediaDebounceJob: Job? = null
 
 @SuppressLint("DefaultLocale")
-@ExperimentalHazeMaterialsApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class, FlowPreview::class)
 @Composable
 fun AccessibilitySettingsScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Unit, navigateToTransparencyCustomization: () -> Unit) {
@@ -92,9 +86,8 @@ fun AccessibilitySettingsScreen(viewModel: AirPodsViewModel, navigateToPurchase:
         )?.toInt() == 1
 
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     Column(
         modifier = Modifier
@@ -107,19 +100,7 @@ fun AccessibilitySettingsScreen(viewModel: AirPodsViewModel, navigateToPurchase:
         Spacer(modifier = Modifier.height(topPadding))
 
         if (!state.isPremium) {
-            StyledButton(
-                onClick = navigateToPurchase,
-                backdrop = rememberLayerBackdrop(),
-                modifier = Modifier.fillMaxWidth(),
-                maxScale = 0.05f,
-                surfaceColor = MaterialTheme.colorScheme.primary
-            ) {
-                Text(
-                    stringResource(R.string.unlock_advanced_features),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+            PremiumBanner(onClick = navigateToPurchase)
             Spacer(modifier = Modifier.height(16.dp))
         }
 
@@ -303,8 +284,8 @@ fun AccessibilitySettingsScreen(viewModel: AirPodsViewModel, navigateToPurchase:
             },
             valueRange = 0f..100f,
             snapPoints = listOf(75f),
-            startIcon = "\uDBC0\uDEA1",
-            endIcon = "\uDBC0\uDEA9",
+            startIcon = Icons.AutoMirrored.Rounded.VolumeDown,
+            endIcon = Icons.AutoMirrored.Rounded.VolumeUp,
             independent = true,
             enabled = state.isPremium
         )

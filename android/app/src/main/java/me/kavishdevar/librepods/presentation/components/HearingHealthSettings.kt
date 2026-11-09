@@ -16,14 +16,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-@file:OptIn(ExperimentalEncodingApi::class)
-
 package me.kavishdevar.librepods.presentation.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Hearing
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import me.kavishdevar.librepods.R
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Composable
 fun HearingHealthSettings(
@@ -33,30 +33,23 @@ fun HearingHealthSettings(
     navigateToHearingProtection: () -> Unit,
     navigateToHearingAid: () -> Unit
 ) {
-    val shouldShowHearingAid = hasHearingAidCapability && vendorIdHook
+    val showHearingAid = hasHearingAidCapability && vendorIdHook
+    if (!hasPPECapability && !showHearingAid) return
 
-    if (hasPPECapability && shouldShowHearingAid) {
-        StyledList(title = stringResource(R.string.hearing_health)) {
+    StyledList(title = stringResource(R.string.hearing_health)) {
+        if (hasPPECapability) {
             StyledListItem(
                 name = stringResource(R.string.hearing_protection),
-                onClick = navigateToHearingProtection
-            )
-
-            StyledListItem(
-                name = stringResource(R.string.hearing_aid),
-                onClick = navigateToHearingAid
+                onClick = navigateToHearingProtection,
+                icon = Icons.Rounded.Shield
             )
         }
-    } else if (shouldShowHearingAid) {
-        StyledListItem(
-            name = stringResource(R.string.hearing_aid),
-            onClick = navigateToHearingAid
-        )
-    } else if (hasPPECapability) {
-        StyledListItem(
-            title = stringResource(R.string.hearing_health),
-            name = stringResource(R.string.hearing_protection),
-            onClick = navigateToHearingProtection
-        )
+        if (showHearingAid) {
+            StyledListItem(
+                name = stringResource(R.string.hearing_aid),
+                onClick = navigateToHearingAid,
+                icon = Icons.Rounded.Hearing
+            )
+        }
     }
 }

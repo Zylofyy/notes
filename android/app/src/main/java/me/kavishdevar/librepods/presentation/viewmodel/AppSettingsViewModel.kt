@@ -1,5 +1,6 @@
 package me.kavishdevar.librepods.presentation.viewmodel
 
+import me.kavishdevar.librepods.presentation.theme.DYNAMIC_COLOR_PREF
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
@@ -37,7 +38,7 @@ data class AppSettingsUiState(
     val showBottomSheetPopup: Boolean = true,
     val showIslandPopup: Boolean = true,
     val timeUntilFOSSPremiumExpiry: Long = 0L,
-    val m3eEnabled: Boolean = false
+    val dynamicColor: Boolean = true
 )
 
 class AppSettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -152,7 +153,7 @@ class AppSettingsViewModel(application: Application) : AndroidViewModel(applicat
                 connectionSuccessful = sharedPreferences.getBoolean("connection_successful", false),
                 showBottomSheetPopup = sharedPreferences.getBoolean("show_bottom_sheet_popup", true),
                 showIslandPopup = sharedPreferences.getBoolean("show_island_popup", true),
-                m3eEnabled = sharedPreferences.getBoolean("m3e_enabled", true)
+                dynamicColor = sharedPreferences.getBoolean(DYNAMIC_COLOR_PREF, true)
             )
         }
     }
@@ -253,8 +254,8 @@ class AppSettingsViewModel(application: Application) : AndroidViewModel(applicat
         _uiState.update { it.copy(showIslandPopup = enabled) }
     }
 
-    fun setm3eEnabled(enabled: Boolean) {
-        sharedPreferences.edit { putBoolean("m3e_enabled", enabled) }
-        _uiState.update { it.copy(m3eEnabled = enabled) }
+    fun setDynamicColor(enabled: Boolean) {
+        sharedPreferences.edit { putBoolean(DYNAMIC_COLOR_PREF, enabled) }
+        _uiState.update { it.copy(dynamicColor = enabled) }
     }
 }

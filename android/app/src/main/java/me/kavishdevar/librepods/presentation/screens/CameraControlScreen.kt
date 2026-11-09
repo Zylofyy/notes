@@ -17,6 +17,7 @@
 */
 
 package me.kavishdevar.librepods.presentation.screens
+import androidx.compose.runtime.getValue
 
 //@Composable
 //fun CameraControlScreen(viewModel: AirPodsViewModel) {
@@ -70,7 +71,7 @@ package me.kavishdevar.librepods.presentation.screens
 //        Column(
 //            modifier = Modifier
 //                .fillMaxSize()
-//                .layerBackdrop(backdrop)
+//                
 //                .padding(horizontal = 16.dp),
 //            verticalArrangement = Arrangement.spacedBy(16.dp)
 //        ) {

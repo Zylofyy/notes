@@ -19,70 +19,45 @@
 package me.kavishdevar.librepods.presentation.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MotionScheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 
-val ColorScheme.sectionHeader: Color
-    get() = onBackground.copy(alpha = 0.6f)
+/** SharedPreferences key (in the "settings" file) for wallpaper-based dynamic color. */
+const val DYNAMIC_COLOR_PREF = "dynamic_color"
 
-private val AppleDarkColorScheme = darkColorScheme(
-    surfaceContainer = Color(0xFF000000), // for some reason background is not used as the background in gmail and settings app, but surfacecontainer, so using that
-    onBackground = Color(0xFFFFFFFF),
-    surface = Color(0xFF1C1C1E),
-    onSurface = Color(0xFFFFFFFF),
-    surfaceDim = Color(0x40888888),
-    primary = Color(0xFF0091FF),
-    secondaryContainer = Color(0xFF366AA8),
-    onSecondaryContainer = Color(0xFF0091FF),
-    onPrimary = Color(0xFFFFFFFF)
-)
+private val LibrePodsShapes = Shapes()
 
-private val AppleLightColorScheme = lightColorScheme(
-    surfaceContainer = Color(0xFFF2F2F7),
-    onBackground = Color(0xFF000000),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF000000),
-    surfaceDim = Color(0x40D9D9D9),
-    secondaryContainer = Color(0xFF6BC0FF),
-    onSecondaryContainer = Color(0xFF0088FF),
-    primary = Color(0xFF0088FF),
-    onPrimary = Color(0xFFFFFFFF)
-)
-
+/**
+ * The single LibrePods theme: Material 3 Expressive with expressive motion springs,
+ * the Roboto Flex type scale and either the wallpaper (dynamic) color scheme or the
+ * LibrePods tonal palette.
+ */
 @Composable
 fun LibrePodsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    m3eEnabled: Boolean = false,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+    val useDynamic = dynamicColor && !LocalInspectionMode.current
     val colorScheme = when {
-        m3eEnabled -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> AppleDarkColorScheme
-        else -> AppleLightColorScheme
+        useDynamic && darkTheme -> dynamicDarkColorScheme(context)
+        useDynamic -> dynamicLightColorScheme(context)
+        darkTheme -> DarkFallbackColors
+        else -> LightFallbackColors
     }
 
-    CompositionLocalProvider(
-        LocalDesignSystem provides
-            if (m3eEnabled) DesignSystem.Material
-            else DesignSystem.Apple
-    ) {
-        MaterialExpressiveTheme(
-            colorScheme = colorScheme,
-            motionScheme = MotionScheme.expressive(),
-            typography = if (m3eEnabled) MaterialTypography else AppleTypography,
-            content = content
-        )
-    }
+    MaterialExpressiveTheme(
+        colorScheme = colorScheme,
+        motionScheme = MotionScheme.expressive(),
+        shapes = LibrePodsShapes,
+        typography = LibrePodsTypography,
+        content = content
+    )
 }

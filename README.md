@@ -1,3 +1,31 @@
+> [!NOTE]
+> **This is a fork of [kavishdevar/librepods](https://github.com/kavishdevar/librepods) v1.0.4 with the Android app UI rewritten in Material 3 Expressive (M3E).**
+> Everything below this note is the upstream README. Bluetooth, protocol and service code are unchanged from upstream.
+
+## Material 3 Expressive rewrite
+
+Upstream ships an iOS-style UI with an optional M3E skin on top of it. This fork removes the Apple design system completely and rebuilds the in-app UI on M3E components:
+
+- **One design system.** No `LocalDesignSystem` switch, SF Pro font, SF Symbol glyphs, liquid-glass `backdrop` or `haze` blur. Those libraries are dropped from the build.
+- **Theme.** `MaterialExpressiveTheme` with expressive motion springs, the M3 type scale in Roboto Flex (regular and emphasized variable-font instances), and wallpaper dynamic color. A tonal palette generated from the LibrePods seed color is used when the new *Settings → Appearance → Dynamic color* switch is off.
+- **Navigation.** Every screen has its own `LargeFlexibleTopAppBar`, which collapses on scroll and has a shape-morphing tonal back button. Screen changes use shared-axis transitions driven by the motion scheme, plus predictive back.
+- **Home screen.** The buds and case art sit on Material shapes, with a `CircularWavyProgressIndicator` ring per component. A ring ripples while charging, turns to the error color at 20% or below, and shows a charge-limit label. Listening mode is a connected toggle-button group. Settings are grouped segmented lists with shaped icon badges. The upgrade prompt is a tonal card.
+- **Components.** Lists, switches (with thumb icons), sliders, buttons (`ButtonDefaults.shapesFor`), dialogs, bottom sheets and text fields are all plain M3E. Loading uses `ContainedLoadingIndicator`. The disconnected state morphs through `MaterialShapes` while reconnecting.
+
+Out of scope: the system overlays (connection popup, Dynamic-Island-style window), the home-screen widgets and the Quick Settings dialog keep their upstream look.
+
+| Home (light) | Home (dark) | Reconnect | Not connected |
+| --- | --- | --- | --- |
+| <img src="docs/m3e/home_light.png" width="200"/> | <img src="docs/m3e/home_dark.png" width="200"/> | <img src="docs/m3e/disconnected_light.png" width="200"/> | <img src="docs/m3e/not_connected_dark.png" width="200"/> |
+
+Full-length captures: [light](docs/m3e/home_full_light.png), [dark](docs/m3e/home_full_dark.png). These are rendered on the JVM with Robolectric, using the fallback palette and the default font, because downloadable fonts and wallpaper colors aren't available there. Regenerate them with:
+
+```sh
+cd android && ./gradlew :app:testFossDebugUnitTest --tests '*ScreenshotTest*'   # -> app/build/screenshots
+```
+
+---
+
 > [!WARNING]
 > librepods.org is not an official website of the LibrePods project. It inaccurately claims to be the official website of the project by claiming copyrights and using the LibrePods logo in the footer. And at the same time, they say that the project is not affiliated with the LibrePods project or its developers.
 > 

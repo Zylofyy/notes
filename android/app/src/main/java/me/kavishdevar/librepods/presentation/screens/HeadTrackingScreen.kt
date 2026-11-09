@@ -23,6 +23,8 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import android.graphics.Paint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -37,14 +39,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -57,14 +55,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -72,30 +68,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.kavishdevar.librepods.R
+import me.kavishdevar.librepods.presentation.components.PremiumBanner
 import me.kavishdevar.librepods.presentation.components.StyledButton
 import me.kavishdevar.librepods.presentation.components.StyledToggle
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import me.kavishdevar.librepods.services.ServiceManager
 import me.kavishdevar.librepods.utils.HeadTracking
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.math.abs
 
-@ExperimentalHazeMaterialsApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Unit) {
@@ -106,15 +95,11 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
             viewModel.stopHeadTracking()
         }
     }
-    val isDarkTheme = isSystemInDarkTheme()
-    if (isDarkTheme) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
-    val textColor = if (isDarkTheme) Color.White else Color.Black
+    val textColor = MaterialTheme.colorScheme.onSurface
 
-    val backdrop = rememberLayerBackdrop()
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     var gestureText by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
@@ -136,25 +121,12 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
         Column (
             modifier = Modifier
                 .fillMaxWidth()
-                .layerBackdrop(backdrop)
                 .padding(top = 8.dp)
                 .padding(horizontal = 16.dp)
         ) {
 
             if (!state.isPremium) {
-                StyledButton(
-                    onClick = navigateToPurchase,
-                    backdrop = rememberLayerBackdrop(),
-                    modifier = Modifier.fillMaxWidth(),
-                    maxScale = 0.05f,
-                    surfaceColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Text(
-                        stringResource(R.string.unlock_advanced_features),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+                PremiumBanner(onClick = navigateToPurchase)
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -176,7 +148,6 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor.copy(alpha = 0.6f),
-                    fontFamily = FontFamily(Font(R.font.sf_pro))
                 ),
                 modifier = Modifier.padding(start = 16.dp, bottom = 8.dp, top = 8.dp)
             )
@@ -203,18 +174,15 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
                     gestureText = if (accepted) "\"Yes\" gesture detected." else "\"No\" gesture detected."
                 }
             },
-            backdrop = backdrop,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            maxScale = 0.05f
         ) {
             Text(
                 "Test Head Gestures",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily(Font(R.font.sf_pro)),
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 ),
             )
@@ -246,7 +214,6 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
                         style = TextStyle(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
-                            fontFamily = FontFamily(Font(R.font.sf_pro)),
                             textAlign = TextAlign.Center
                         ),
                         color = MaterialTheme.colorScheme.onBackground
@@ -257,7 +224,6 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
                         style = TextStyle(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
-                            fontFamily = FontFamily(Font(R.font.sf_pro)),
                             color = textColor,
                             textAlign = TextAlign.Center
                         ),

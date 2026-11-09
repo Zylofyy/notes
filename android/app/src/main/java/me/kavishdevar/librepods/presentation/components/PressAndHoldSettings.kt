@@ -18,10 +18,19 @@
 
 package me.kavishdevar.librepods.presentation.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import me.kavishdevar.librepods.R
 import me.kavishdevar.librepods.data.StemAction
+
+@Composable
+private fun stemActionLabel(action: StemAction): String = when (action) {
+    StemAction.CYCLE_NOISE_CONTROL_MODES -> stringResource(R.string.listening_mode)
+    StemAction.DIGITAL_ASSISTANT -> "Digital Assistant"
+    else -> ""
+}
 
 @Composable
 fun PressAndHoldSettings(
@@ -30,30 +39,18 @@ fun PressAndHoldSettings(
     navigateToLeftLongPress: () -> Unit,
     navigateToRightLongPress: () -> Unit
 ) {
-    val leftActionText = when (leftAction) {
-        StemAction.CYCLE_NOISE_CONTROL_MODES -> stringResource(R.string.listening_mode)
-        StemAction.DIGITAL_ASSISTANT -> "Digital Assistant"
-        else -> "INVALID!!"
-    }
-
-    val rightActionText = when (rightAction) {
-        StemAction.CYCLE_NOISE_CONTROL_MODES -> stringResource(R.string.listening_mode)
-        StemAction.DIGITAL_ASSISTANT -> "Digital Assistant"
-        else -> "INVALID!!"
-    }
-
-    StyledList(
-        title = stringResource(R.string.press_and_hold_airpods)
-    ) {
+    StyledList(title = stringResource(R.string.press_and_hold_airpods)) {
         StyledListItem(
             name = stringResource(R.string.left),
-            description = leftActionText,
-            onClick = navigateToLeftLongPress
+            description = stemActionLabel(leftAction),
+            onClick = navigateToLeftLongPress,
+            icon = Icons.Rounded.TouchApp
         )
         StyledListItem(
             name = stringResource(R.string.right),
-            description = rightActionText,
+            description = stemActionLabel(rightAction),
             onClick = navigateToRightLongPress,
+            icon = Icons.Rounded.TouchApp
         )
     }
 }

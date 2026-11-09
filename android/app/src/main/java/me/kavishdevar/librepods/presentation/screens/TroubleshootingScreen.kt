@@ -18,6 +18,9 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import me.kavishdevar.librepods.presentation.components.listContainerColor
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -38,14 +41,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,13 +66,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -81,16 +78,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -117,7 +110,7 @@ fun CustomIconButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TroubleshootingScreen() {
     val context = LocalContext.current
@@ -147,10 +140,10 @@ fun TroubleshootingScreen() {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    val backgroundColor = if (isSystemInDarkTheme()) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
-    val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
-    val accentColor = if (isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF3C6DF5)
-    val buttonBgColor = if (isSystemInDarkTheme()) Color(0xFF333333) else Color(0xFFDDDDDD)
+    val backgroundColor = listContainerColor
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val accentColor = MaterialTheme.colorScheme.primary
+    val buttonBgColor = MaterialTheme.colorScheme.secondaryContainer
 
     var instructionText by remember { mutableStateOf("") }
     val isDarkTheme = isSystemInDarkTheme()
@@ -210,18 +203,16 @@ fun TroubleshootingScreen() {
         showBottomSheet = true
     }
 
-    val backdrop = rememberLayerBackdrop()
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-        val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+        val topPadding = 8.dp
+        val bottomPadding = 24.dp
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .layerBackdrop(backdrop)
                 .verticalScroll(scrollState)
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(horizontal = 16.dp)
@@ -234,7 +225,6 @@ fun TroubleshootingScreen() {
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor.copy(alpha = 0.6f),
-                    fontFamily = FontFamily(Font(R.font.sf_pro))
                 ),
                 modifier = Modifier.padding(16.dp, bottom = 4.dp, top = 8.dp)
             )
@@ -375,7 +365,6 @@ fun TroubleshootingScreen() {
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light,
                             color = textColor.copy(alpha = 0.6f),
-                            fontFamily = FontFamily(Font(R.font.sf_pro))
                         ),
                         modifier = Modifier.padding(16.dp, bottom = 2.dp, top = 8.dp)
                     )
@@ -754,7 +743,7 @@ fun TroubleshootingScreen() {
             ModalBottomSheet(
                 onDismissRequest = { showBottomSheet = false },
                 sheetState = sheetState,
-                containerColor = if (isDarkTheme) Color(0xFF1C1C1E) else Color(0xFFF2F2F7),
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                 tonalElevation = 8.dp
             ) {
@@ -790,7 +779,6 @@ fun TroubleshootingScreen() {
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.sf_pro))
                             ),
                             color = textColor
                         )
@@ -799,7 +787,6 @@ fun TroubleshootingScreen() {
                                 .format(Date(selectedLogFile?.lastModified() ?: 0)),
                             fontSize = 14.sp,
                             color = textColor.copy(alpha = 0.7f),
-                            fontFamily = FontFamily(Font(R.font.sf_pro))
                         )
                     }
 
@@ -818,8 +805,8 @@ fun TroubleshootingScreen() {
                                 .fillMaxWidth()
                                 .height(300.dp)
                                 .background(
-                                    color = Color.Black,
-                                    shape = RoundedCornerShape(8.dp)
+                                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                    shape = MaterialTheme.shapes.large
                                 )
                         ) {
                             val horizontalScrollState = rememberScrollState()

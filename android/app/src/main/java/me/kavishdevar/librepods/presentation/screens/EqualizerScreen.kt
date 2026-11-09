@@ -18,6 +18,8 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -31,17 +33,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.visible
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -56,7 +54,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,20 +79,13 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.highlight.Highlight
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import me.kavishdevar.librepods.R
 import me.kavishdevar.librepods.presentation.components.StyledButton
 import me.kavishdevar.librepods.presentation.components.StyledList
 import me.kavishdevar.librepods.presentation.components.StyledListItem
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
 import me.kavishdevar.librepods.presentation.theme.LibrePodsTheme
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsUiState
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import me.kavishdevar.librepods.presentation.viewmodel.demoState
@@ -107,9 +97,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun EqualizerRoute(viewModel: AirPodsViewModel) {
     val state by viewModel.uiState.collectAsState()
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     Box (
         modifier = Modifier
@@ -221,9 +210,7 @@ fun EqualizerScreen(
                         offsets[1].floatValue = 0f
                         offsets[2].floatValue = 0f
                     },
-                    backdrop = rememberLayerBackdrop(),
                     modifier = Modifier.fillMaxWidth(),
-                    isInteractive = false,
                     enabled = resetButtonEnabled.value
                 ) {
                     Text(
@@ -255,7 +242,6 @@ fun EqualizerCard(
     ) {
         val dashColor = if (isSystemInDarkTheme()) Color(0x80AAAAAA) else Color(0x809D9D9D)
 
-        val backdrop = rememberLayerBackdrop()
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -374,7 +360,6 @@ fun EqualizerCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .layerBackdrop(backdrop)
                 ) {
                     Box(
                         modifier = Modifier
@@ -542,15 +527,9 @@ fun EqualizerCard(
                         ) {
                             Text(
                                 text = stringResource(R.string.eq_low).uppercase(),
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = FontFamily(Font(R.font.sf_pro)),
-                                    fontWeight = FontWeight.Bold,
-                                    color = (if (isSystemInDarkTheme()) Color.White else Color.Black).copy(
-                                        0.2f
-                                    ),
-                                    textAlign = TextAlign.Center
-                                ),
+                                style = MaterialTheme.typography.labelLargeEmphasized,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -559,15 +538,9 @@ fun EqualizerCard(
                         ) {
                             Text(
                                 text = stringResource(R.string.eq_mid).uppercase(),
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = FontFamily(Font(R.font.sf_pro)),
-                                    fontWeight = FontWeight.Bold,
-                                    color = (if (isSystemInDarkTheme()) Color.White else Color.Black).copy(
-                                        0.2f
-                                    ),
-                                    textAlign = TextAlign.Center
-                                ),
+                                style = MaterialTheme.typography.labelLargeEmphasized,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -576,15 +549,9 @@ fun EqualizerCard(
                         ) {
                             Text(
                                 text = stringResource(R.string.eq_high).uppercase(),
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = FontFamily(Font(R.font.sf_pro)),
-                                    fontWeight = FontWeight.Bold,
-                                    color = (if (isSystemInDarkTheme()) Color.White else Color.Black).copy(
-                                        0.2f
-                                    ),
-                                    textAlign = TextAlign.Center
-                                ),
+                                style = MaterialTheme.typography.labelLargeEmphasized,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -616,6 +583,7 @@ fun EqualizerCard(
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
+                                val knobHalo = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
                                 Crossfade(
                                     pressed.value
                                 ) {
@@ -624,37 +592,19 @@ fun EqualizerCard(
                                             .size(96.dp)
                                             .then(
                                                 if (it) {
-                                                    Modifier.drawBackdrop(
-                                                        backdrop = backdrop,
-                                                        shape = { CircleShape },
-                                                        highlight = {
-                                                            Highlight.Ambient
-                                                        },
-                                                        onDrawSurface = {
-                                                            drawCircle(
-                                                                color = Color.White.copy(
-                                                                    0.2f
-                                                                ),
-                                                                radius = size.height
-                                                            )
-                                                            drawCircle(
-                                                                color = colorFromY(
-                                                                    when (i) {
-                                                                        0 -> lowOffset.value; 1 -> midOffset.value; 2 -> highOffset.value
-                                                                        else -> 0f
-                                                                    }
-                                                                ),
-                                                                style = Stroke(2.dp.value),
-                                                                radius = size.height / 2
-                                                            )
-                                                        },
-                                                        effects = {
-                                                            lens(
-                                                                refractionHeight = 32f.dp.value,
-                                                                refractionAmount = size.height
-                                                            )
-                                                        }
-                                                    )
+                                                    Modifier.drawBehind {
+                                                        drawCircle(color = knobHalo, radius = size.minDimension / 2)
+                                                        drawCircle(
+                                                            color = colorFromY(
+                                                                when (i) {
+                                                                    0 -> lowOffset.value; 1 -> midOffset.value; 2 -> highOffset.value
+                                                                    else -> 0f
+                                                                }
+                                                            ),
+                                                            style = Stroke(2.dp.toPx()),
+                                                            radius = size.minDimension / 2
+                                                        )
+                                                    }
                                                 } else Modifier
                                             )
                                     )
@@ -722,29 +672,11 @@ fun EqualizerCard(
     }
 }
 
-@Preview(name = "Apple")
+@Preview
 @Composable
-fun EqualizerScreenPreviewApple() {
+fun EqualizerScreenPreview() {
     LibrePodsTheme(
-        m3eEnabled = false
-    ) {
-        Box (
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
-        ) {
-            EqualizerScreen(
-                state = demoState,
-                setCustomEqEnabled = { },
-                setCustomEq = {_, _, _ -> }
-            )
-        }
-    }
-}
-
-@Preview(name = "Material")
-@Composable
-fun EqualizerScreenPreviewMaterial() {
-    LibrePodsTheme(
-        m3eEnabled = true
+        dynamicColor = false
     ) {
         val state = remember { mutableStateOf(demoState) }
         Box (

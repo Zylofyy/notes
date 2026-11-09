@@ -19,24 +19,24 @@
 package me.kavishdevar.librepods.presentation.screens
 
 // import me.kavishdevar.librepods.utils.RadareOffsetFinder
+import androidx.compose.runtime.getValue
+import me.kavishdevar.librepods.presentation.components.listContainerColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.VolumeDown
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,7 +49,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,46 +57,37 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import me.kavishdevar.librepods.R
 import me.kavishdevar.librepods.data.TransparencySettings
 import me.kavishdevar.librepods.data.parseTransparencySettingsResponse
 import me.kavishdevar.librepods.data.sendTransparencySettings
 import me.kavishdevar.librepods.presentation.components.StyledSlider
 import me.kavishdevar.librepods.presentation.components.StyledToggle
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 private const val TAG = "TransparencySettings"
 
 @SuppressLint("DefaultLocale")
-@ExperimentalHazeMaterialsApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun TransparencySettingsScreen(viewModel: AirPodsViewModel) {
-    val isDarkTheme = isSystemInDarkTheme()
-    val textColor = if (isDarkTheme) Color.White else Color.Black
+    val textColor = MaterialTheme.colorScheme.onSurface
     val verticalScrollState = rememberScrollState()
 
-    val trackColor = if (isDarkTheme) Color(0xFFB3B3B3) else Color(0xFF929491)
-    val activeTrackColor = if (isDarkTheme) Color(0xFF007AFF) else Color(0xFF3C6DF5)
-    val thumbColor = if (isDarkTheme) Color(0xFFFFFFFF) else Color(0xFFFFFFFF)
+    val trackColor = MaterialTheme.colorScheme.secondaryContainer
+    val activeTrackColor = MaterialTheme.colorScheme.primary
+    val thumbColor = MaterialTheme.colorScheme.primary
 
     val state by viewModel.uiState.collectAsState()
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     Column(
         modifier = Modifier
@@ -108,7 +98,7 @@ fun TransparencySettingsScreen(viewModel: AirPodsViewModel) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Spacer(modifier = Modifier.height(topPadding))
-        val backgroundColor = if (isDarkTheme) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
+        val backgroundColor = listContainerColor
 
         val enabled = rememberSaveable { mutableStateOf(false) }
         val amplificationSliderValue = rememberSaveable { mutableFloatStateOf(0.5f) }
@@ -211,8 +201,8 @@ fun TransparencySettingsScreen(viewModel: AirPodsViewModel) {
                 onValueChange = {
                     amplificationSliderValue.floatValue = it
                 },
-                startIcon = "􀊥",
-                endIcon = "􀊩",
+                startIcon = Icons.AutoMirrored.Rounded.VolumeDown,
+                endIcon = Icons.AutoMirrored.Rounded.VolumeUp,
                 independent = true
             )
 
@@ -266,7 +256,6 @@ fun TransparencySettingsScreen(viewModel: AirPodsViewModel) {
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor.copy(alpha = 0.6f),
-                    fontFamily = FontFamily(Font(R.font.sf_pro))
                 ),
                 modifier = Modifier.padding(16.dp, bottom = 4.dp)
             )

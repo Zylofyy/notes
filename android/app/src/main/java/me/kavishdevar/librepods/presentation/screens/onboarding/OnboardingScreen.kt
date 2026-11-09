@@ -81,7 +81,7 @@ fun OnboardingScreen(
     }
 
     LibrePodsTheme(
-        m3eEnabled = true
+        dynamicColor = false
     ) {
         Column(
             modifier = Modifier

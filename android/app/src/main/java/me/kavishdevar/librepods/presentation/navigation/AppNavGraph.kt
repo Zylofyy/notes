@@ -2,7 +2,8 @@ package me.kavishdevar.librepods.presentation.navigation
 
 import androidx.activity.BackEventCompat.Companion.EDGE_LEFT
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.tween
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
@@ -14,7 +15,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import me.kavishdevar.librepods.bluetooth.AACPManager
 import me.kavishdevar.librepods.data.updates.updates
 import me.kavishdevar.librepods.presentation.screens.AccessibilitySettingsScreen
@@ -39,13 +39,10 @@ import me.kavishdevar.librepods.presentation.screens.TroubleshootingScreen
 import me.kavishdevar.librepods.presentation.screens.UpdateHearingTestRoute
 import me.kavishdevar.librepods.presentation.screens.VersionScreen
 import me.kavishdevar.librepods.presentation.screens.onboarding.OnboardingScreen
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import me.kavishdevar.librepods.presentation.viewmodel.AppSettingsViewModel
 import me.kavishdevar.librepods.presentation.viewmodel.PurchaseViewModel
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun AppNavGraph(
     showReleaseNotes: Boolean = false,
@@ -63,7 +60,14 @@ fun AppNavGraph(
         navigate(Screen.Purchase)
     }
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
+    fun frameEntry(screen: Screen, content: @Composable () -> Unit) = NavEntry(screen) {
+        ScreenFrame(screen, backStack, airPodsViewModel, content)
+    }
+
+    // M3E shared-axis (X) transitions driven by the expressive motion scheme springs.
+    val motion = MaterialTheme.motionScheme
+    val slideSpec = motion.defaultSpatialSpec<IntOffset>()
+    val fadeSpec = motion.defaultEffectsSpec<Float>()
 
     SharedTransitionLayout {
         NavDisplay(
@@ -77,7 +81,7 @@ fun AppNavGraph(
             entryProvider = { screen ->
                 when (screen) {
                     Screen.Onboarding ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             OnboardingScreen {
                                 onboardingComplete()
                                 if (showReleaseNotes) navigate(Screen.ReleaseNotes) else navigate(Screen.AirPodsSettings)
@@ -85,7 +89,7 @@ fun AppNavGraph(
                             }
                         }
                     Screen.AirPodsSettings ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             AirPodsSettingsRoute(
                                 viewModel = airPodsViewModel,
@@ -115,13 +119,13 @@ fun AppNavGraph(
                         }
 
                     Screen.Rename ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             RenameScreen(airPodsViewModel)
                         }
 
                     Screen.AppSettings ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             val vm: AppSettingsViewModel = viewModel()
                             AppSettingsScreen(
                                 viewModel = vm,
@@ -133,18 +137,18 @@ fun AppNavGraph(
                         }
 
                     Screen.Troubleshooting ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             TroubleshootingScreen()
                         }
 
                     Screen.HeadTracking ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             HeadTrackingScreen(airPodsViewModel, ::navigateToPurchase)
                         }
 
                     Screen.Accessibility ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             AccessibilitySettingsScreen(
                                 viewModel = airPodsViewModel,
@@ -154,13 +158,13 @@ fun AppNavGraph(
                         }
 
                     Screen.TransparencyCustomization ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             TransparencySettingsScreen(airPodsViewModel)
                         }
 
                     Screen.HearingAid ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             HearingAidScreen(
                                 viewModel = airPodsViewModel,
@@ -170,40 +174,40 @@ fun AppNavGraph(
                         }
 
                     Screen.HearingAidAdjustments ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             HearingAidAdjustmentsScreen(airPodsViewModel)
                         }
 
                     Screen.AdaptiveStrength ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             AdaptiveStrengthScreen(airPodsViewModel, ::navigateToPurchase)
                         }
 
 //                Screen.CameraControl ->
-//                    NavEntry(screen) {
+//                    frameEntry(screen) {
 //                        CameraControlScreen(airPodsViewModel)
 //                    }
 
                     Screen.OpenSourceLicenses ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             OpenSourceLicensesScreen()
                         }
 
                     Screen.UpdateHearingTest ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             UpdateHearingTestRoute(airPodsViewModel)
                         }
 
                     Screen.VersionInfo ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             VersionScreen(airPodsViewModel)
                         }
 
                     Screen.HearingProtection ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             HearingProtectionScreen(
                                 viewModel = airPodsViewModel,
@@ -212,19 +216,19 @@ fun AppNavGraph(
                         }
 
                     Screen.Purchase ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             val vm: PurchaseViewModel = viewModel()
                             PurchaseScreen(vm, backStack)
                         }
 
                     Screen.Equalizer ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             EqualizerRoute(airPodsViewModel)
                         }
 
                     is Screen.LongPress ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             LongPress(
                                 viewModel = airPodsViewModel,
@@ -234,7 +238,7 @@ fun AppNavGraph(
                         }
 
                     is Screen.CallControl ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             CallControlScreen(
                                 viewModel = airPodsViewModel,
@@ -252,13 +256,13 @@ fun AppNavGraph(
                         }
 
                     is Screen.MicrophoneSettings ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             if (!airPodsViewModel.isReady) LoadingScreen()
                             MicrophoneSettingsRoute(viewModel = airPodsViewModel)
                         }
 
                     is Screen.ReleaseNotes ->
-                        NavEntry(screen) {
+                        frameEntry(screen) {
                             ReleaseNotesScreen(
                                 updates = updates,
                                 releaseNotesShown = {
@@ -275,49 +279,19 @@ fun AppNavGraph(
                 }
             },
             transitionSpec = {
-                slideInHorizontally { it } togetherWith slideOutHorizontally { -it / 4 }
+                (slideInHorizontally(slideSpec) { it / 4 } + fadeIn(fadeSpec)) togetherWith
+                    (slideOutHorizontally(slideSpec) { -it / 8 } + fadeOut(fadeSpec))
             },
             popTransitionSpec = {
-                slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
+                (slideInHorizontally(slideSpec) { -it / 8 } + fadeIn(fadeSpec)) togetherWith
+                    (slideOutHorizontally(slideSpec) { it / 4 } + fadeOut(fadeSpec))
             },
             predictivePopTransitionSpec = { swipeEdge ->
-                if (m3eEnabled) {
-                    val enterOffset: (Int) -> Int =
-                        if (swipeEdge == EDGE_LEFT) {
-                            { -it / 6 }
-                        } else {
-                            { it / 6 }
-                        }
-
-                    val exitOffset: (Int) -> Int =
-                        if (swipeEdge == EDGE_LEFT) {
-                            { it / 8 }
-                        } else {
-                            { -it / 8 }
-                        }
-
-                    fadeIn(
-                        animationSpec = tween(250)
-                    ) +
-                        slideInHorizontally(
-                            initialOffsetX = enterOffset,
-                            animationSpec = tween(250)
-                        ) togetherWith
-                        fadeOut(
-                            targetAlpha = 0.75f,
-                            animationSpec = tween(250)
-                        ) +
-                        scaleOut(
-                            targetScale = 0.85f,
-                            animationSpec = tween(250)
-                        ) +
-                        slideOutHorizontally(
-                            targetOffsetX = exitOffset,
-                            animationSpec = tween(250)
-                        )
-                } else {
-                    slideInHorizontally { -it / 4 } togetherWith slideOutHorizontally { it }
-                }
+                val enterOffset: (Int) -> Int = if (swipeEdge == EDGE_LEFT) { { -it / 6 } } else { { it / 6 } }
+                val exitOffset: (Int) -> Int = if (swipeEdge == EDGE_LEFT) { { it / 8 } } else { { -it / 8 } }
+                (fadeIn(fadeSpec) + slideInHorizontally(slideSpec, enterOffset)) togetherWith
+                    (fadeOut(fadeSpec, targetAlpha = 0.75f) + scaleOut(fadeSpec, targetScale = 0.85f) +
+                        slideOutHorizontally(slideSpec, exitOffset))
             },
         )
     }

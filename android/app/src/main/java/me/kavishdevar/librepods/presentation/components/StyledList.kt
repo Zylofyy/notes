@@ -1,30 +1,53 @@
+/*
+    LibrePods - AirPods liberated from Apple’s ecosystem
+    Copyright (C) 2025 LibrePods contributors
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 package me.kavishdevar.librepods.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.Wallpapers.GREEN_DOMINATED_EXAMPLE
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
-import me.kavishdevar.librepods.presentation.theme.LibrePodsTheme
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
-import me.kavishdevar.librepods.presentation.theme.sectionHeader
+import androidx.graphics.shapes.RoundedPolygon
 
+/**
+ * A titled group of segmented list rows (the M3E "grouped list" pattern): rows share
+ * one container, get large outer corners and small inner corners, and are separated
+ * by the standard segmented gap. Rows are added through [StyledListScope].
+ */
 @Composable
 fun StyledList(
     modifier: Modifier = Modifier,
@@ -35,98 +58,107 @@ fun StyledList(
     val scope = StyledListScope()
     scope.content()
 
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-
-    Column (modifier = modifier) {
-        title?.let {
-            Box(
-                modifier = Modifier
-                    .background(if (m3eEnabled) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 4.dp, bottom = if (m3eEnabled) 12.dp else 4.dp)
-            ) {
-                Text(
-                    text = it,
-                    color = if (m3eEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.sectionHeader,
-                    style = MaterialTheme.typography.labelSmallEmphasized
-                )
-            }
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(if (m3eEnabled) Color.Transparent else MaterialTheme.colorScheme.surface, RoundedCornerShape(if (m3eEnabled) 24.dp else 28.dp))
-                .clip(RoundedCornerShape(if (m3eEnabled) 24.dp else 28.dp))
-        ) {
-            if (m3eEnabled && description != null) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(0.8f),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+    Column(modifier = modifier.fillMaxWidth()) {
+        title?.let { SectionHeader(it) }
+        Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
             scope.items.forEachIndexed { index, item ->
                 item(index, scope.items.size)
             }
-            Spacer(modifier = Modifier.height(if(m3eEnabled) 4.dp else 0.dp))
         }
-    }
-    if (!m3eEnabled && description != null) {
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodySmallEmphasized,
-            color = MaterialTheme.colorScheme.onBackground.copy(0.6f),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
+        description?.let { SectionFooter(it) }
     }
 }
 
 class StyledListScope {
-    internal val items =
-        mutableListOf<@Composable (Int, Int) -> Unit>()
+    internal val items = mutableListOf<@Composable (Int, Int) -> Unit>()
 
-    fun item(
-        content: @Composable (index: Int, count: Int) -> Unit
-    ) {
+    fun item(content: @Composable (index: Int, count: Int) -> Unit) {
         items += content
     }
 }
 
-@Preview(showBackground = true, wallpaper = GREEN_DOMINATED_EXAMPLE, uiMode = UI_MODE_NIGHT_YES)
+/** Section label shown above a group. */
 @Composable
-fun StyledListDemo() {
-    LibrePodsTheme(
-        m3eEnabled = true
+fun SectionHeader(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.labelLargeEmphasized,
+        modifier = modifier.padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 10.dp)
+    )
+}
+
+/** Explanatory text shown below a group. */
+@Composable
+fun SectionFooter(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = modifier.padding(start = 20.dp, end = 20.dp, top = 8.dp)
+    )
+}
+
+private val GroupOuterCorner = 24.dp
+private val GroupInnerCorner = 6.dp
+
+/** Static shape of row [index] in a group of [count]: large outer corners, small inner ones. */
+fun groupItemShape(index: Int, count: Int): Shape = when {
+    count <= 1 -> RoundedCornerShape(GroupOuterCorner)
+    index == 0 -> RoundedCornerShape(GroupOuterCorner, GroupOuterCorner, GroupInnerCorner, GroupInnerCorner)
+    index == count - 1 -> RoundedCornerShape(GroupInnerCorner, GroupInnerCorner, GroupOuterCorner, GroupOuterCorner)
+    else -> RoundedCornerShape(GroupInnerCorner)
+}
+
+/** Row shapes for a group: interactive states morph to a fully rounded card. */
+@Composable
+fun groupItemShapes(index: Int, count: Int, keepShapeWhenSelected: Boolean = false): ListItemShapes {
+    val shape = groupItemShape(index, count)
+    val rounded = RoundedCornerShape(GroupOuterCorner)
+    return ListItemDefaults.shapes(
+        shape = shape,
+        selectedShape = if (keepShapeWhenSelected) shape else rounded,
+        pressedShape = rounded,
+        focusedShape = rounded,
+        hoveredShape = rounded,
+        draggedShape = rounded,
+    )
+}
+
+/** Container color used by every list row and card in the app. */
+val listContainerColor: Color
+    @Composable get() = MaterialTheme.colorScheme.surfaceBright
+
+/**
+ * Leading icon for list rows: the glyph sits on a tonal Material shape, which gives
+ * each settings group the expressive "shape + color" look used across M3E.
+ */
+@Composable
+fun ListIcon(
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    shape: RoundedPolygon = MaterialShapes.Cookie9Sided,
+    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+) {
+    ListIcon(icon, modifier, shape.toShape(), containerColor, contentColor)
+}
+
+@Composable
+fun ListIcon(
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    shape: Shape,
+    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+) {
+    Box(
+        modifier = modifier
+            .size(40.dp)
+            .clip(shape)
+            .background(containerColor),
+        contentAlignment = Alignment.Center
     ) {
-        val backgroundC = MaterialTheme.colorScheme.background
-        StyledScaffold(
-            title = "${backgroundC.red}, ${backgroundC.green}, ${backgroundC.blue}"
-        ) {
-            Column (
-                modifier = Modifier.padding(horizontal = 12.dp)
-            ) {
-                Spacer(modifier = Modifier.height(56.dp))
-                StyledList(
-                    title = "hello"
-                ) {
-                    for (i in 0..2) {
-                        StyledListItem(
-                            name = i.toString(),
-                            onClick = {}
-                        )
-                    }
-                    val checked = remember { mutableStateOf(false) }
-                    StyledToggle(
-                        label = "Test",
-                        description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit mollit anim id est laborum.",
-                        checked = checked.value,
-                        onCheckedChange = { checked.value = it },
-                    )
-                }
-            }
-        }
+        Icon(icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(22.dp))
     }
 }

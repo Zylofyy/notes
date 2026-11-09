@@ -18,6 +18,7 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import androidx.compose.runtime.getValue
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,14 +26,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -44,7 +41,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,9 +64,7 @@ import me.kavishdevar.librepods.bluetooth.ATTHandles
 import me.kavishdevar.librepods.data.HearingAidSettings
 import me.kavishdevar.librepods.data.parseHearingAidSettingsResponse
 import me.kavishdevar.librepods.data.sendHearingAidSettings
-import me.kavishdevar.librepods.presentation.theme.DesignSystem
 import me.kavishdevar.librepods.presentation.theme.LibrePodsTheme
-import me.kavishdevar.librepods.presentation.theme.LocalDesignSystem
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsUiState
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import me.kavishdevar.librepods.presentation.viewmodel.demoState
@@ -80,9 +74,8 @@ private const val TAG = "UpdateHearingTestScreen"
 @Composable
 fun UpdateHearingTestRoute(viewModel: AirPodsViewModel) {
     val state by viewModel.uiState.collectAsState()
-    val m3eEnabled = LocalDesignSystem.current == DesignSystem.Material
-    val topPadding = if (m3eEnabled) 0.dp else WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 84.dp
-    val bottomPadding = if (m3eEnabled) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 12.dp
+    val topPadding = 8.dp
+    val bottomPadding = 24.dp
 
     Box(
         modifier = Modifier
@@ -264,7 +257,6 @@ fun UpdateHearingTestScreen(
 //                        label = { Text("Value", fontSize = 14.sp, fontFamily = FontFamily(Font(R.font.sf_pro))) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     textStyle = TextStyle(
-                        fontFamily = FontFamily(Font(R.font.sf_pro)),
                         fontSize = 14.sp
                     ),
                     modifier = Modifier.weight(1f)
@@ -283,7 +275,6 @@ fun UpdateHearingTestScreen(
 //                        label = { Text("Value", fontSize = 14.sp, fontFamily = FontFamily(Font(R.font.sf_pro))) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     textStyle = TextStyle(
-                        fontFamily = FontFamily(Font(R.font.sf_pro)),
                         fontSize = 14.sp
                     ),
                     modifier = Modifier.weight(1f)
@@ -298,7 +289,7 @@ fun UpdateHearingTestScreen(
 @Composable
 fun UpdateHearingTestScreenPreviewApple() {
     LibrePodsTheme(
-        m3eEnabled = false
+        dynamicColor = false
     ) {
         Box (
             modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
@@ -315,7 +306,7 @@ fun UpdateHearingTestScreenPreviewApple() {
 @Composable
 fun UpdateHearingTestScreenPreviewMaterial() {
     LibrePodsTheme(
-        m3eEnabled = true
+        dynamicColor = false
     ) {
         Box (
             modifier = Modifier

@@ -271,7 +271,7 @@
     <string name="appearance">Appearance</string>
     <string name="use_material3e">Use Material 3 Expressive</string>
     <string name="material3e">Material 3 Expressive</string>
-    <string name="update_m3e_description">LibrePods now supports a whole new look based on Material 3 Expressive including updated typography and adaptive color schemes.\nYou can switch back to the Apple look from the app\'s settings.</string>
+    <string name="update_m3e_description">LibrePods now uses Material 3 Expressive throughout, with collapsing top bars, shape-morphing controls, wavy battery indicators and colors from your wallpaper.</string>
     <string name="update_equalizer_description">Available only on the latest AirPods Beta firmware. An Apple device running OS version 27 is required to install the beta firmware.</string>
     <string name="what_s_new">What\'s New</string>
     <string name="reconnecting">Reconnecting</string>
@@ -289,4 +289,19 @@
     <string name="eq_low">Low</string>
     <string name="eq_mid">Mid</string>
     <string name="eq_high">High</string>
+    <!-- M3E rewrite -->
+    <string name="connected">Connected</string>
+    <string name="charging">Charging</string>
+    <string name="charge_limited">Charge limited</string>
+    <string name="dynamic_color">Dynamic color</string>
+    <string name="dynamic_color_description">Use colors from your wallpaper. Turn off to use the LibrePods palette.</string>
+    <string name="controls">Controls</string>
+    <string name="battery_and_charging">Battery &amp; Sleep</string>
+    <string name="start_head_tracking">Start head tracking</string>
+    <string name="stop_head_tracking">Stop head tracking</string>
+    <string name="device_name">Device name</string>
+    <string name="connection">Connection</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="percent_value">%1$d%%</string>
 </resources>

@@ -49,10 +49,10 @@ import androidx.core.content.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.play.core.review.ReviewManagerFactory
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import me.kavishdevar.librepods.data.AirPodsNotifications
 import me.kavishdevar.librepods.data.ControlCommandRepository
 import me.kavishdevar.librepods.presentation.navigation.NavigationRoot
+import me.kavishdevar.librepods.presentation.theme.DYNAMIC_COLOR_PREF
 import me.kavishdevar.librepods.presentation.theme.LibrePodsTheme
 import me.kavishdevar.librepods.presentation.viewmodel.AirPodsViewModel
 import me.kavishdevar.librepods.services.AirPodsService
@@ -74,18 +74,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @ExperimentalHazeMaterialsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
             val sharedPreferences = LocalContext.current.getSharedPreferences("settings", MODE_PRIVATE)
-            val m3eEnabled = remember { mutableStateOf(sharedPreferences.getBoolean("m3e_enabled", true)) }
+            val dynamicColor = remember { mutableStateOf(sharedPreferences.getBoolean(DYNAMIC_COLOR_PREF, true)) }
 
             val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
                 when (key) {
-                    "m3e_enabled" -> m3eEnabled.value = sharedPreferences.getBoolean(key, true)
+                    DYNAMIC_COLOR_PREF -> dynamicColor.value = sharedPreferences.getBoolean(key, true)
                 }
             }
 
@@ -95,9 +94,7 @@ class MainActivity : ComponentActivity() {
                     sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
                 }
             }
-            LibrePodsTheme(
-                m3eEnabled = m3eEnabled.value
-            ) {
+            LibrePodsTheme(dynamicColor = dynamicColor.value) {
 //                For demo screenshots
 //                val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
 //                windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -142,7 +139,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@ExperimentalHazeMaterialsApi
 @SuppressLint("MissingPermission", "InlinedApi", "UnspecifiedRegisterReceiverFlag")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
