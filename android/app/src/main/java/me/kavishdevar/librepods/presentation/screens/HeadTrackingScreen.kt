@@ -23,6 +23,10 @@
 
 package me.kavishdevar.librepods.presentation.screens
 
+import me.kavishdevar.librepods.presentation.components.StyledList
+import androidx.compose.material.icons.rounded.SwapHoriz
+import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import android.graphics.Paint
@@ -140,6 +144,28 @@ fun HeadTrackingScreen(viewModel: AirPodsViewModel, navigateToPurchase: () -> Un
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            StyledList(
+                title = stringResource(R.string.media_gestures),
+                description = stringResource(R.string.media_gestures_footer)
+            ) {
+                StyledToggle(
+                    label = stringResource(R.string.control_music_with_head_gestures),
+                    description = stringResource(R.string.media_gestures_description),
+                    checked = state.mediaHeadGesturesEnabled,
+                    onCheckedChange = viewModel::setMediaHeadGesturesEnabled,
+                    enabled = state.headGesturesEnabled && (state.isPremium || state.mediaHeadGesturesEnabled),
+                    icon = Icons.Rounded.MusicNote
+                )
+                StyledToggle(
+                    label = stringResource(R.string.swap_next_previous),
+                    description = stringResource(R.string.swap_next_previous_description),
+                    checked = state.mediaHeadGesturesSwapped,
+                    onCheckedChange = viewModel::setMediaHeadGesturesSwapped,
+                    enabled = state.headGesturesEnabled && state.mediaHeadGesturesEnabled,
+                    icon = Icons.Rounded.SwapHoriz
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(

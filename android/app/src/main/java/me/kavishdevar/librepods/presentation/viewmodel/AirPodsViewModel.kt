@@ -18,6 +18,7 @@
 
 package me.kavishdevar.librepods.presentation.viewmodel
 
+import me.kavishdevar.librepods.services.MediaHeadGestures
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -80,6 +81,8 @@ data class AirPodsUiState(
 
     val headTrackingActive: Boolean = false,
     val headGesturesEnabled: Boolean = true,
+    val mediaHeadGesturesEnabled: Boolean = false,
+    val mediaHeadGesturesSwapped: Boolean = false,
 
     val eqData: FloatArray = floatArrayOf(),
 
@@ -310,6 +313,7 @@ class AirPodsViewModel(
                 "name" -> loadName()
                 "off_listening_mode", "automatic_ear_detection", "automatic_connection_ctrl_cmd",
                 "head_gestures", "left_long_press_action", "right_long_press_action",
+                MediaHeadGestures.PREF_ENABLED, MediaHeadGestures.PREF_SWAP,
                 "dynamic_end_of_charge", "foss_upgraded", "premium_expiry_time" -> loadSharedPreferences()
             }
         }
@@ -479,6 +483,8 @@ class AirPodsViewModel(
         val automaticConnectionEnabled =
             sharedPreferences.getBoolean("automatic_connection_ctrl_cmd", true)
         val headGesturesEnabled = sharedPreferences.getBoolean("head_gestures", true)
+        val mediaHeadGesturesEnabled = sharedPreferences.getBoolean(MediaHeadGestures.PREF_ENABLED, false)
+        val mediaHeadGesturesSwapped = sharedPreferences.getBoolean(MediaHeadGestures.PREF_SWAP, false)
         val leftAction = StemAction.valueOf(
             sharedPreferences.getString(
                 "left_long_press_action",
@@ -502,6 +508,8 @@ class AirPodsViewModel(
                 automaticEarDetectionEnabled = automaticEarDetectionEnabled,
                 automaticConnectionEnabled = automaticConnectionEnabled,
                 headGesturesEnabled = headGesturesEnabled,
+                mediaHeadGesturesEnabled = mediaHeadGesturesEnabled,
+                mediaHeadGesturesSwapped = mediaHeadGesturesSwapped,
                 leftAction = leftAction,
                 rightAction = rightAction,
                 vendorIdHook = vendorIdHook,
@@ -573,6 +581,16 @@ class AirPodsViewModel(
         _uiState.update {
             it.copy(headGesturesEnabled = enabled)
         }
+    }
+
+    fun setMediaHeadGesturesEnabled(enabled: Boolean) {
+        sharedPreferences.edit { putBoolean(MediaHeadGestures.PREF_ENABLED, enabled) }
+        _uiState.update { it.copy(mediaHeadGesturesEnabled = enabled) }
+    }
+
+    fun setMediaHeadGesturesSwapped(swapped: Boolean) {
+        sharedPreferences.edit { putBoolean(MediaHeadGestures.PREF_SWAP, swapped) }
+        _uiState.update { it.copy(mediaHeadGesturesSwapped = swapped) }
     }
 
     fun setDynamicEndOfCharge(enabled: Boolean) {

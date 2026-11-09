@@ -304,4 +304,10 @@
     <string name="send">Send</string>
     <string name="cancel">Cancel</string>
     <string name="percent_value">%1$d%%</string>
+    <string name="media_gestures">Media</string>
+    <string name="control_music_with_head_gestures">Control music with head gestures</string>
+    <string name="media_gestures_description">Nod twice to play or pause. Turn your head right and back for the next track, or left and back for the previous one.</string>
+    <string name="swap_next_previous">Swap next and previous</string>
+    <string name="swap_next_previous_description">Turn on if turning right goes to the previous track.</string>
+    <string name="media_gestures_footer">Media gestures work while music is playing and for 30 seconds after it pauses. They\'re off during calls. Head tracking uses extra AirPods battery while it runs.</string>
 </resources>

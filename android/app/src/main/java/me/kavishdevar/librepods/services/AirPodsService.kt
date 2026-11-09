@@ -168,6 +168,8 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         var showPhoneBatteryInWidget: Boolean = true,
         var relativeConversationAwarenessVolume: Boolean = true,
         var headGestures: Boolean = true,
+        var mediaHeadGestures: Boolean = false,
+        var mediaHeadGesturesSwap: Boolean = false,
         var disconnectWhenNotWearing: Boolean = false,
         var conversationAwarenessVolume: Int = 43,
         var qsClickBehavior: String = "cycle",
@@ -585,6 +587,14 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                 "settings", MODE_PRIVATE
             )
         )
+        mediaHeadGestures = MediaHeadGestures(
+            context = this@AirPodsService,
+            audioManager = audioManager,
+            canUseHeadTracking = ::canUseHeadTrackingForMedia,
+            acquireHeadTracking = ::acquireHeadTrackingForMedia,
+            releaseHeadTracking = ::releaseHeadTrackingForMedia,
+        ).also { it.start() }
+        configureMediaHeadGestures()
 //        Log.d(TAG, "Initializing CrossDevice")
 //        CoroutineScope(Dispatchers.IO).launch {
 //            CrossDevice.init(this@AirPodsService)
@@ -605,6 +615,7 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                         if (leAvailableForAudio) runBlocking {
                             takeOver("call")
                         }
+                        mediaHeadGestures?.setSuspended(true)
                         if (config.headGestures) {
                             handleIncomingCall()
                         }
@@ -620,11 +631,13 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                             takeOver("call")
                         }
                         isInCall = true
+                        mediaHeadGestures?.setSuspended(true)
                     }
 
                     TelephonyManager.CALL_STATE_IDLE -> {
                         isInCall = false
                         gestureDetector?.stopDetection()
+                        mediaHeadGestures?.setSuspended(false)
                     }
                 }
             }
@@ -693,6 +706,7 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
 
                 } else if (intent?.action == AirPodsNotifications.AIRPODS_DISCONNECTED) {
                     device = null
+                    mediaHeadGestures?.onAirPodsDisconnected()
 //                    isConnectedLocally = false
                     popupShown = false
                     updateNotificationContent(false)
@@ -1367,6 +1381,8 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                 "relative_conversation_awareness_volume", true
             ),
             headGestures = sharedPreferences.getBoolean("head_gestures", true),
+            mediaHeadGestures = sharedPreferences.getBoolean(MediaHeadGestures.PREF_ENABLED, false),
+            mediaHeadGesturesSwap = sharedPreferences.getBoolean(MediaHeadGestures.PREF_SWAP, false),
             disconnectWhenNotWearing = sharedPreferences.getBoolean(
                 "disconnect_when_not_wearing", false
             ),
@@ -1482,7 +1498,20 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
             "relative_conversation_awareness_volume" -> config.relativeConversationAwarenessVolume =
                 preferences.getBoolean(key, true)
 
-            "head_gestures" -> config.headGestures = preferences.getBoolean(key, true)
+            "head_gestures" -> {
+                config.headGestures = preferences.getBoolean(key, true)
+                configureMediaHeadGestures()
+            }
+
+            MediaHeadGestures.PREF_ENABLED -> {
+                config.mediaHeadGestures = preferences.getBoolean(key, false)
+                configureMediaHeadGestures()
+            }
+
+            MediaHeadGestures.PREF_SWAP -> {
+                config.mediaHeadGesturesSwap = preferences.getBoolean(key, false)
+                configureMediaHeadGestures()
+            }
             "disconnect_when_not_wearing" -> config.disconnectWhenNotWearing =
                 preferences.getBoolean(key, false)
 
@@ -1645,6 +1674,14 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
     }
 
     private var gestureDetector: GestureDetector? = null
+    private var mediaHeadGestures: MediaHeadGestures? = null
+
+    private fun configureMediaHeadGestures() {
+        mediaHeadGestures?.configure(
+            enabled = config.headGestures && config.mediaHeadGestures,
+            swapDirections = config.mediaHeadGesturesSwap
+        )
+    }
     private var isInCall = false
     private var callNumber: String? = null
 
@@ -2203,6 +2240,7 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         } catch (e: Exception) {
             Log.w(TAG, "gesture detector on ${data.toHexString()}: ${e.message}")
         }
+        mediaHeadGestures?.onSample(horizontal, vertical)
     }
 
     private lateinit var connectionReceiver: BroadcastReceiver
@@ -2523,7 +2561,7 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                     } else if (startHeadTrackingAgain) {
                         Log.d(TAG, "Starting head tracking again after taking control")
                         Handler(Looper.getMainLooper()).postDelayed({
-                            startHeadTracking()
+                            startHeadTrackingStream()
                         }, 500)
                     }
                     delay(1000) // should ideally have a callback when it's taken over because for some reason android doesn't dispatch when it's paused
@@ -3102,6 +3140,7 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
 
     @SuppressLint("MissingPermission")
     override fun onDestroy() {
+        mediaHeadGestures?.destroy()
         clearPacketLogs()
         Log.d(TAG, "Service stopped is being destroyed for some reason!")
 
@@ -3142,7 +3181,41 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
 
     var isHeadTrackingActive = false
 
+    // Head tracking has two independent users: the app/UI and call gestures (via
+    // startHeadTracking/stopHeadTracking), and media head gestures (via acquire/release).
+    // The sensor stream only stops once neither needs it.
+    private var appHeadTrackingRequested = false
+    private var mediaHeadTrackingRequested = false
+
     fun startHeadTracking() {
+        appHeadTrackingRequested = true
+        startHeadTrackingStream()
+    }
+
+    fun stopHeadTracking() {
+        appHeadTrackingRequested = false
+        gestureDetector?.stopDetection()
+        if (!mediaHeadTrackingRequested) stopHeadTrackingStream()
+    }
+
+    private fun acquireHeadTrackingForMedia() {
+        mediaHeadTrackingRequested = true
+        if (!isHeadTrackingActive) startHeadTrackingStream()
+    }
+
+    private fun releaseHeadTrackingForMedia() {
+        mediaHeadTrackingRequested = false
+        if (!appHeadTrackingRequested) stopHeadTrackingStream()
+    }
+
+    /** True when the AACP link is up and this phone owns the AirPods connection. */
+    private fun canUseHeadTrackingForMedia(): Boolean =
+        BluetoothConnectionManager.aacpSocket?.isConnected == true &&
+            aacpManager.getControlCommandStatus(
+                AACPManager.Companion.ControlCommandIdentifiers.OWNS_CONNECTION
+            )?.value?.getOrNull(0)?.toInt() == 1
+
+    private fun startHeadTrackingStream() {
         isHeadTrackingActive = true
         val useAlternatePackets =
             sharedPreferences.getBoolean("use_alternate_head_tracking_packets", true)
@@ -3163,7 +3236,7 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         HeadTracking.reset()
     }
 
-    fun stopHeadTracking() {
+    private fun stopHeadTrackingStream() {
         val useAlternatePackets =
             sharedPreferences.getBoolean("use_alternate_head_tracking_packets", true)
         if (useAlternatePackets) {
@@ -3172,7 +3245,6 @@ class AirPodsService : Service(), SharedPreferences.OnSharedPreferenceChangeList
             aacpManager.sendStopHeadTracking()
         }
         isHeadTrackingActive = false
-        gestureDetector?.stopDetection()
     }
 
     @SuppressLint("MissingPermission")

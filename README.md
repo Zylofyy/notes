@@ -12,6 +12,16 @@ Upstream ships an iOS-style UI with an optional M3E skin on top of it. This fork
 - **Home screen.** The buds and case art sit on Material shapes, with a `CircularWavyProgressIndicator` ring per component. A ring ripples while charging, turns to the error color at 20% or below, and shows a charge-limit label. Listening mode is a connected toggle-button group. Settings are grouped segmented lists with shaped icon badges. The upgrade prompt is a tonal card.
 - **Components.** Lists, switches (with thumb icons), sliders, buttons (`ButtonDefaults.shapesFor`), dialogs, bottom sheets and text fields are all plain M3E. Loading uses `ContainedLoadingIndicator`. The disconnected state morphs through `MaterialShapes` while reconnecting.
 
+### Media head gestures
+
+*Head Gestures → Media → Control music with head gestures* (off by default) controls playback with head movements:
+
+- **Nod twice:** play or pause.
+- **Turn right and back:** next track.
+- **Turn left and back:** previous track.
+
+To save AirPods battery and avoid accidental triggers, head tracking only runs while music is playing on the phone and for 30 seconds after it pauses. It doesn't run during calls, which keep the nod/shake answer and decline gestures. Single nods, shakes, turning and holding, and continuous motion like walking are ignored. If turning right goes to the previous track on your AirPods, turn on *Swap next and previous*. The detector is `utils/MediaGestureDetector.kt`, with unit tests in `MediaGestureDetectorTest`.
+
 Out of scope: the system overlays (connection popup, Dynamic-Island-style window), the home-screen widgets and the Quick Settings dialog keep their upstream look.
 
 | Home (light) | Home (dark) | Reconnect | Not connected |
